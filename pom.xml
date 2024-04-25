@@ -3,7 +3,7 @@
 
     <groupId>com.sebastian-daschner</groupId>
     <artifactId>jaxrs-analyzer</artifactId>
-    <version>0.18-SNAPSHOT</version>
+    <version>0.18</version>
     <name>JAX-RS Analyzer</name>
     <packaging>jar</packaging>
 
@@ -133,7 +133,7 @@
         <connection>scm:git:git@github.com:sdaschner/jaxrs-analyzer.git</connection>
         <developerConnection>scm:git:git@github.com:sdaschner/jaxrs-analyzer.git</developerConnection>
         <url>scm:git:git@github.com:sdaschner/jaxrs-analyzer.git</url>
-        <tag>HEAD</tag>
+        <tag>jaxrs-analyzer-0.18</tag>
     </scm>
 
     <distributionManagement>
