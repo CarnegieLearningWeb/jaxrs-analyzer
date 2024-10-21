@@ -23,7 +23,6 @@ import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.util.TraceSignatureVisitor;
 
 import java.lang.annotation.Annotation;
-import java.lang.invoke.MethodHandles;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,7 +30,6 @@ import java.lang.reflect.TypeVariable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.lang.invoke.VarHandle;
 
 import static com.sebastian_daschner.jaxrs_analyzer.model.Types.*;
 import static java.util.Collections.emptyList;
@@ -45,27 +43,6 @@ import static java.util.Collections.emptyMap;
 public final class JavaUtils {
 
     public static final String INITIALIZER_NAME = "<init>";
-    
-    private static final VarHandle SIGNATURE;
-    private static final VarHandle METHOD_SIGNATURE;
-
-    static {
-        try {
-            var lookup = MethodHandles.privateLookupIn(Field.class, MethodHandles.lookup());
-            SIGNATURE = lookup.findVarHandle(Field.class, "signature", String.class);
-        } catch (IllegalAccessException | NoSuchFieldException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-    
-    static {
-        try {
-            var lookup = MethodHandles.privateLookupIn(Method.class, MethodHandles.lookup());
-            METHOD_SIGNATURE = lookup.findVarHandle(Method.class, "signature", String.class);
-        } catch (IllegalAccessException | NoSuchFieldException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
 
     private JavaUtils() {
         throw new UnsupportedOperationException();
@@ -431,23 +408,13 @@ public final class JavaUtils {
     }
 
     public static String getMethodSignature(final Method method) {
-    	String signature = (String) METHOD_SIGNATURE.get(method);
-
-        if (signature != null) {
-            return signature;
-        }
-
-        return Type.getMethodDescriptor(method);
+        return SignatureUtils.getMethodSignature(method);
     }
 
     public static String getFieldDescriptor(final Field field, final String containedType) {
-    	String signature = (String) SIGNATURE.get(field);
+        String signature = SignatureUtils.getFieldTypeSignature(field);
 
-    	if (signature != null) {
-              return resolvePotentialTypeVariables(signature, containedType);
-        }
-
-    	return Type.getDescriptor(field.getType());
+        return resolvePotentialTypeVariables(signature, containedType);
     }
 
     private static String resolvePotentialTypeVariables(final String signature, final String containedType) {

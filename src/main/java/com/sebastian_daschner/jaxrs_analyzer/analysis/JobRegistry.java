@@ -13,11 +13,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class JobRegistry {
 
-    private static final JobRegistry INSTANCE = new JobRegistry();
+    /** non-final only for testcode */
+    private static JobRegistry INSTANCE = new JobRegistry();
     private Queue<Pair<String, ClassResult>> unhandledClasses = new ConcurrentLinkedQueue<>();
 
     private JobRegistry() {
         // only one instance allowed
+    }
+
+    public static void injectInstanceForTestcode(JobRegistry instance) {
+        INSTANCE = instance;
     }
 
     /**

@@ -17,10 +17,6 @@ import org.objectweb.asm.Type;
 
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.VarHandle;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Set;
@@ -28,7 +24,6 @@ import java.util.stream.Collectors;
 
 import static com.sebastian_daschner.jaxrs_analyzer.analysis.utils.TestClassUtils.getClasses;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
@@ -41,21 +36,9 @@ public class SubResourceLocatorMethodContentAnalyzerTest {
     private final Set<String> expectedClassNames;
     private final JobRegistry jobRegistry;
     private String signature;
-    
-    private static final VarHandle MODIFIERS;
-
-    static {
-        try {
-            var lookup = MethodHandles.privateLookupIn(Field.class, MethodHandles.lookup());
-            MODIFIERS = lookup.findVarHandle(Field.class, "modifiers", int.class);
-        } catch (IllegalAccessException | NoSuchFieldException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
 
 
-    public SubResourceLocatorMethodContentAnalyzerTest(final String testClassSimpleName, final String testClassName, final String signature, final Set<String> expectedClassNames)
-            throws ReflectiveOperationException {
+    public SubResourceLocatorMethodContentAnalyzerTest(final String testClassSimpleName, final String testClassName, final String signature, final Set<String> expectedClassNames) {
         this.testClassSimpleName = testClassSimpleName;
         this.testClassName = testClassName;
         this.signature = signature;
@@ -66,7 +49,7 @@ public class SubResourceLocatorMethodContentAnalyzerTest {
     }
 
     @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() throws NotFoundException, IOException, ReflectiveOperationException {
+    public static Collection<Object[]> data() throws NotFoundException, ReflectiveOperationException {
         Collection<Object[]> data = new LinkedList<>();
 
         final Set<String> testClasses = getClasses("com/sebastian_daschner/jaxrs_analyzer/analysis/bytecode/subresource");
@@ -112,23 +95,13 @@ public class SubResourceLocatorMethodContentAnalyzerTest {
     }
 
     @AfterClass
-    public static void tearDown() throws NoSuchFieldException, IllegalAccessException {
+    public static void tearDown() {
         injectJobRegistry(originalJobRegistry);
     }
 
-    private static void injectJobRegistry(final JobRegistry jobRegistry) throws NoSuchFieldException, IllegalAccessException {
-        final Field field = JobRegistry.class.getDeclaredField("INSTANCE");
-        field.setAccessible(true);
+    private static void injectJobRegistry(final JobRegistry jobRegistry) {
         originalJobRegistry = JobRegistry.getInstance();
-        makeNonFinal(field);
-        field.setAccessible(true);
-        field.set(null, jobRegistry);
+        JobRegistry.injectInstanceForTestcode(jobRegistry);
     }
-    
-    private static void makeNonFinal(Field field) {
-        int mods = field.getModifiers();
-        if (Modifier.isFinal(mods)) {
-            MODIFIERS.set(field, mods & ~Modifier.FINAL);
-        }
-    }
+
 }
