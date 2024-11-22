@@ -88,6 +88,11 @@ final class SignatureUtils {
             return "L" + clazz.getName().replace('.', '/') + ";";
         }
         
+        if (type instanceof GenericArrayType) {
+            GenericArrayType arrayType = (GenericArrayType) type;
+            return "[" + getTypeSignature(arrayType.getGenericComponentType());
+        }
+        
         if (type instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType) type;
             String baseSignature = getTypeSignature(paramType.getRawType());
