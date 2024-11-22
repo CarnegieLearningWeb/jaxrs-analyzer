@@ -121,6 +121,6 @@ final class SignatureUtils {
             }
         }
         
-        throw new IllegalArgumentException("Unsupported type: " + type);
+        throw new IllegalArgumentException("Unsupported type: " + type + " (" + type.getClass() + ")");
     }
 }

@@ -408,13 +408,21 @@ public final class JavaUtils {
     }
 
     public static String getMethodSignature(final Method method) {
-        return SignatureUtils.getMethodSignature(method);
+        try {
+            return SignatureUtils.getMethodSignature(method);
+        } catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException("getMethodSignature failure for method " + method, iae);
+        }
     }
 
     public static String getFieldDescriptor(final Field field, final String containedType) {
-        String signature = SignatureUtils.getFieldTypeSignature(field);
+        try {
+            String signature = SignatureUtils.getFieldTypeSignature(field);
 
-        return resolvePotentialTypeVariables(signature, containedType);
+            return resolvePotentialTypeVariables(signature, containedType);
+        } catch (IllegalArgumentException iae) {
+            throw new IllegalArgumentException("getFieldDescriptor failure for field " + field + " in " + containedType, iae);
+        }
     }
 
     private static String resolvePotentialTypeVariables(final String signature, final String containedType) {
